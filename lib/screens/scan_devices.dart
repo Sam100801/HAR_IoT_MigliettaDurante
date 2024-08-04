@@ -16,6 +16,7 @@ class _ScanDevicesState extends State<ScanDevices> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dispositivi trovati'),
+        backgroundColor: Colors.lightBlue,
       ),
       body: GetBuilder<BleController>(
         init: BleController(),
