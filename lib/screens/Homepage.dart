@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:prova_flutter/screens/scan_devices.dart';
 import 'package:prova_flutter/screens/welcome_page.dart';
-import 'package:prova_flutter/screens/activity_data.dart';// Assuming you have a WelcomeScreen for login
+import 'package:prova_flutter/screens/activity_data.dart'; // Assuming you have a WelcomeScreen for login
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -60,6 +60,10 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate the screen width and height
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -69,27 +73,29 @@ class _HomepageState extends State<Homepage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        padding: const EdgeInsets.only(top: 70, left: 30, right: 30),
+        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Text(
-                  "Human Activity Recognition",
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Text(
+                    "Human Activity Recognition",
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                Spacer(),
                 IconButton(
                   icon: Icon(Icons.logout, color: Colors.blueGrey),
                   onPressed: _showConfirmDialog,
                 ),
               ],
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
             Row(
               children: [
                 Text(
@@ -100,7 +106,7 @@ class _HomepageState extends State<Homepage> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                Expanded(child: Container()),
+                Spacer(),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -132,8 +138,8 @@ class _HomepageState extends State<Homepage> {
             ),
             SizedBox(height: 20),
             Container(
-              width: MediaQuery.of(context).size.width,
-              height: 200,
+              width: screenWidth,
+              height: screenHeight * 0.25, // Adjust the height relative to the screen height
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -157,8 +163,8 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ],
               ),
-              child: Container(
-                padding: const EdgeInsets.only(left: 20, top: 25, right: 20),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -177,7 +183,7 @@ class _HomepageState extends State<Homepage> {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 25),
+                    Spacer(),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -198,7 +204,7 @@ class _HomepageState extends State<Homepage> {
                             ),
                           ],
                         ),
-                        Expanded(child: Container()),
+                        Spacer(),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -233,33 +239,30 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
             SizedBox(height: 20),
-            Row(
-              children: [
-                Text(
-                  "Attività Svolta",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+            Text(
+              "Attività Svolta",
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             SizedBox(height: 20),
             Expanded(
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildActivityCard("Running", "images/running.jpg"),
-                      _buildActivityCard("Walking", "images/walking.jpg"),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  _buildActivityCard("Stopping", "images/stopping.jpg", isFullWidth: true),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildActivityCard("Run", "images/running.jpg"),
+                        _buildActivityCard("Walk", "images/walking.jpg"),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    _buildActivityCard("Stop", "images/stopping.jpg", isFullWidth: true),
+                  ],
+                ),
               ),
             ),
           ],
@@ -274,8 +277,8 @@ class _HomepageState extends State<Homepage> {
     return GestureDetector(
       onTap: () => _startActivity(activity),
       child: Container(
-        width: isFullWidth ? MediaQuery.of(context).size.width - 45 : (MediaQuery.of(context).size.width - 90) / 2,
-        height: 190,
+        width: isFullWidth ? MediaQuery.of(context).size.width * 0.9 : (MediaQuery.of(context).size.width * 0.9 - 20) / 2,
+        height: 130,
         padding: EdgeInsets.only(bottom: 5),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -312,7 +315,7 @@ class _HomepageState extends State<Homepage> {
                     borderRadius: BorderRadius.circular(15),
                     image: DecorationImage(
                       image: AssetImage(imagePath),
-                      fit: BoxFit.contain,
+                      fit: BoxFit.contain, // Changed from BoxFit.cover to BoxFit.contain
                     ),
                   ),
                 ),
@@ -323,7 +326,7 @@ class _HomepageState extends State<Homepage> {
               child: Text(
                 activity,
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 15,
                   color: Colors.black,
                   fontWeight: FontWeight.w700,
                 ),

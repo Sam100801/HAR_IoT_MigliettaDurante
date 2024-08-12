@@ -14,7 +14,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
-  bool agreePersonalData = false; // Changed to false by default
+  bool agreePersonalData = false;
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -54,19 +54,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return CustomScaffold(
       child: Column(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: SizedBox(
-              height: 10,
+            child: Container(
+              padding: EdgeInsets.only(top: screenSize.height * 0.05),
+              alignment: Alignment.center,
+              child: Text(
+                'Registrati per iniziare!',
+                style: TextStyle(
+                  fontSize: screenSize.width * 0.08,
+                  fontWeight: FontWeight.w900,
+                  color: lightColorScheme.primary,
+                ),
+              ),
             ),
           ),
           Expanded(
-            flex: 7,
+            flex: 6,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * 0.05,
+                vertical: screenSize.height * 0.03,
+              ),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -75,25 +89,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               child: SingleChildScrollView(
-                // get started form
                 child: Form(
                   key: _formSignupKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // get started text
-                      Text(
-                        'Registrati per iniziare!',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40.0,
-                      ),
-                      // full name
+                      // Full name
                       TextFormField(
                         controller: _fullNameController,
                         validator: (value) {
@@ -103,29 +104,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Full Name'),
+                          labelText: 'Full Name',
                           hintText: 'Enter Full Name',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      // email
+                      const SizedBox(height: 20.0),
+                      // Email
                       TextFormField(
                         controller: _emailController,
                         validator: (value) {
@@ -138,29 +137,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Email'),
+                          labelText: 'Email',
                           hintText: 'Enter Email',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      // password
+                      const SizedBox(height: 20.0),
+                      // Password
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -175,70 +172,72 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Password'),
+                          labelText: 'Password',
                           hintText: 'Enter Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                              color: Colors.black12,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      // i agree to the processing
+                      const SizedBox(height: 20.0),
+                      // Agreement
                       Row(
                         children: [
                           Checkbox(
                             value: agreePersonalData,
                             onChanged: (bool? value) {
                               setState(() {
-                                agreePersonalData = value!;
+                                agreePersonalData = value ?? false;
                               });
                             },
                             activeColor: lightColorScheme.primary,
                           ),
-                          const Text(
-                            'I agree to the processing of ',
-                            style: TextStyle(
-                              color: Colors.black45,
-                            ),
-                          ),
-                          Text(
-                            'Personal data',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: lightColorScheme.primary,
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'I agree to the processing of ',
+                                    style: TextStyle(
+                                      color: Colors.black45,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: 'Personal data',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: lightColorScheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      // signup button
+                      const SizedBox(height: 20.0),
+                      // Sign up button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _signUp,
-                          child: const Text('Sign up'),
+                          child: const Text('Registrati!'),
                         ),
                       ),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
-                      // sign up divider
+                      const SizedBox(height: 20.0),
+                      // Sign up divider
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -249,10 +248,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 0,
-                              horizontal: 10,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
                               'Sign up with',
                               style: TextStyle(
@@ -268,7 +264,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ],
                       ),
-                      // already have an account
+                      // Already have an account
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -283,7 +279,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (e) => const SignInScreen(),
+                                  builder: (context) => const SignInScreen(),
                                 ),
                               );
                             },
@@ -296,9 +292,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(
-                        height: 20.0,
                       ),
                     ],
                   ),

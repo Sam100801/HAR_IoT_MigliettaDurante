@@ -17,6 +17,22 @@ class _ScanDevicesState extends State<ScanDevices> {
       appBar: AppBar(
         title: const Text('Dispositivi trovati'),
         backgroundColor: Colors.lightBlue,
+        actions: [
+          // Icona di disconnessione
+          IconButton(
+            icon: const Icon(Icons.bluetooth_disabled),
+            onPressed: () async {
+              await Get.find<BleController>().disconnectFromDevice(() {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Dispositivo disconnesso'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              });
+            },
+          ),
+        ],
       ),
       body: GetBuilder<BleController>(
         init: BleController(),
@@ -44,7 +60,14 @@ class _ScanDevicesState extends State<ScanDevices> {
                                 subtitle: Text(data.device.id.id),
                                 trailing: Text('RSSI: ${data.rssi}'),
                                 onTap: () async {
-                                  await controller.connectToDevice(data.device);
+                                  await controller.connectToDevice(data.device, () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Dispositivo ${data.device.name} connesso'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  });
                                   if (controller.deviceInfo.value.isNotEmpty) {
                                     _showDeviceInfoDialog(
                                         context, controller.deviceInfo.value);

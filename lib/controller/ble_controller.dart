@@ -34,7 +34,7 @@ class BleController extends GetxController {
     }
   }
 
-  Future<void> connectToDevice(BluetoothDevice device) async {
+  Future<void> connectToDevice(BluetoothDevice device, Function() onConnected) async {
     try {
       await device.connect(timeout: Duration(seconds: 15));
       connectedDevice.value = device;
@@ -43,6 +43,7 @@ class BleController extends GetxController {
       device.state.listen((BluetoothDeviceState state) {
         if (state == BluetoothDeviceState.connected) {
           print("Device connected: ${device.name}");
+          onConnected(); // Chiama il callback quando connesso
           _discoverServices(device);
         } else if (state == BluetoothDeviceState.disconnected) {
           print("Device Disconnected");
@@ -72,6 +73,17 @@ class BleController extends GetxController {
           });
         }
       }
+    }
+  }
+
+  // Metodo per disconnettere il dispositivo
+  Future<void> disconnectFromDevice(Function() onDisconnected) async {
+    final device = connectedDevice.value;
+    if (device != null) {
+      await device.disconnect();
+      connectedDevice.value = null;
+      deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
+      onDisconnected(); // Chiama il callback quando disconnesso
     }
   }
 

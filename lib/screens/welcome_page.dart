@@ -10,53 +10,62 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return CustomScaffold(
       child: Column(
         children: [
-          Flexible(
-              flex: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 40.0,
-                ),
-                child: Center(
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                            text: 'Benvenuto!\n',
-                            style: TextStyle(
-                              fontSize: 45.0,
-                              fontWeight: FontWeight.w600,
-                            )),
-                        TextSpan(
-                            text:
-                            '\nRegistrati o accedi per iniziare a utilizzare l\'applicazione',
-                            style: TextStyle(
-                              fontSize: 20,
-                              // height: 0,
-                            ))
-                      ],
-                    ),
+          Expanded(
+            flex: 7,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * 0.1,
+                vertical: screenSize.height * 0.05,
+              ),
+              child: Center(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Benvenuto!\n',
+                        style: TextStyle(
+                          fontSize: isPortrait ? 45.0 : 35.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '\nRegistrati o accedi per iniziare a utilizzare l\'applicazione',
+                        style: TextStyle(
+                          fontSize: isPortrait ? 20.0 : 16.0,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )),
-          Flexible(
-            flex: 1,
-            child: Align(
-              alignment: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * 0.05,
+                vertical: screenSize.height * 0.02,
+              ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: WelcomeButton(
                       buttonText: 'Sign in',
-                      onTap: SignInScreen(),
+                      onTap: const SignInScreen(),
                       color: Colors.transparent,
                       textColor: Colors.white,
                     ),
                   ),
+                  SizedBox(width: screenSize.width * 0.05),
                   Expanded(
                     child: WelcomeButton(
                       buttonText: 'Sign up',
