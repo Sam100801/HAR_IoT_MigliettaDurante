@@ -3,8 +3,13 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BleController extends GetxController {
-
   FlutterBlue ble = FlutterBlue.instance;
+
+  // Dispositivo connesso
+  var connectedDevice = Rx<BluetoothDevice?>(null);
+
+  // Informazioni ricevute dal dispositivo
+  var deviceInfo = RxString('');
 
   Future<void> scanDevices() async {
     final bluetoothScanStatus = await Permission.bluetoothScan.request();
@@ -29,22 +34,47 @@ class BleController extends GetxController {
     }
   }
 
-  // Questa funzione aiuterà l'utente a connettersi ai dispositivi BLE.
   Future<void> connectToDevice(BluetoothDevice device) async {
-    // Connetti al dispositivo
-    await device.connect(timeout: Duration(seconds: 15));
+    try {
+      await device.connect(timeout: Duration(seconds: 15));
+      connectedDevice.value = device;
 
-    // Aggiungi un listener per gestire lo stato di connessione
-    device.state.listen((BluetoothDeviceState state) {
-      if (state == BluetoothDeviceState.connecting) {
-        print("Device connecting to: ${device.name}");
-      } else if (state == BluetoothDeviceState.connected) {
-        print("Device connected: ${device.name}");
-      } else if (state == BluetoothDeviceState.disconnected) {
-        print("Device Disconnected");
-      }
-    });
+      // Monitora lo stato di connessione del dispositivo
+      device.state.listen((BluetoothDeviceState state) {
+        if (state == BluetoothDeviceState.connected) {
+          print("Device connected: ${device.name}");
+          _discoverServices(device);
+        } else if (state == BluetoothDeviceState.disconnected) {
+          print("Device Disconnected");
+          connectedDevice.value = null;
+          deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
+        }
+      });
+    } catch (e) {
+      print('Errore durante la connessione: $e');
+    }
   }
 
+  Future<void> _discoverServices(BluetoothDevice device) async {
+    List<BluetoothService> services = await device.discoverServices();
+    for (BluetoothService service in services) {
+      for (BluetoothCharacteristic characteristic in service.characteristics) {
+        // Legge i valori delle caratteristiche se possibile
+        if (characteristic.properties.read) {
+          var value = await characteristic.read();
+          deviceInfo.value += 'Characteristic ${characteristic.uuid}: $value\n';
+        }
+        // Monitora le notifiche se la caratteristica supporta il notify
+        if (characteristic.properties.notify) {
+          await characteristic.setNotifyValue(true);
+          characteristic.value.listen((value) {
+            deviceInfo.value += 'Notification from ${characteristic.uuid}: $value\n';
+          });
+        }
+      }
+    }
+  }
+
+  // Stream per ottenere i risultati della scansione
   Stream<List<ScanResult>> get scanResults => ble.scanResults;
 }

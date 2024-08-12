@@ -24,42 +24,75 @@ class _ScanDevicesState extends State<ScanDevices> {
           return Center(
             child: Column(
               children: [
-                  StreamBuilder<List<ScanResult>>(
-                    stream: controller.scanResults,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
-                              return Card(
-                                elevation: 2,
-                                child: ListTile(
-                                  title: Text(data.device.name),
-                                  subtitle: Text(data.device.id.id),
-                                  trailing: Text(data.rssi.toString()),
-                                  onTap: () => controller.connectToDevice(data.device),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      } else {
-                        return Center(child: Text('Nessun dispositivo trovato'));
-                      }
-                    },
-                  ),
-                SizedBox(height: 10),
+                StreamBuilder<List<ScanResult>>(
+                  stream: controller.scanResults,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      return Expanded(
+                        child: ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final data = snapshot.data![index];
+                            return Card(
+                              elevation: 2,
+                              child: ListTile(
+                                title: Text(data.device.name.isNotEmpty ? data.device.name : "Dispositivo sconosciuto"),
+                                subtitle: Text(data.device.id.id),
+                                trailing: Text('RSSI: ${data.rssi}'),
+                                onTap: () async {
+                                  await controller.connectToDevice(data.device);
+                                  if (controller.deviceInfo.value.isNotEmpty) {
+                                    _showDeviceInfoDialog(context, controller.deviceInfo.value);
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      return const Expanded(
+                        child: Center(child: Text('Nessun dispositivo trovato')),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () async {controller.scanDevices();},
-                  child: const Text('Scansiona'),),
+                  onPressed: () async {
+                    controller.scanDevices();
+                  },
+                  child: const Text('Scansiona'),
+                ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  void _showDeviceInfoDialog(BuildContext context, String deviceInfo) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Informazioni Dispositivo'),
+          content: SingleChildScrollView(
+            child: Text(deviceInfo),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Chiudi il dialog
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
