@@ -38,13 +38,16 @@ class _ScanDevicesState extends State<ScanDevices> {
                             return Card(
                               elevation: 2,
                               child: ListTile(
-                                title: Text(data.device.name.isNotEmpty ? data.device.name : "Dispositivo sconosciuto"),
+                                title: Text(data.device.name.isNotEmpty
+                                    ? data.device.name
+                                    : "Dispositivo sconosciuto"),
                                 subtitle: Text(data.device.id.id),
                                 trailing: Text('RSSI: ${data.rssi}'),
                                 onTap: () async {
                                   await controller.connectToDevice(data.device);
                                   if (controller.deviceInfo.value.isNotEmpty) {
-                                    _showDeviceInfoDialog(context, controller.deviceInfo.value);
+                                    _showDeviceInfoDialog(
+                                        context, controller.deviceInfo.value);
                                   }
                                 },
                               ),
