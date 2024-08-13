@@ -196,7 +196,7 @@ class _HomepageState extends State<Homepage> {
                             ),
                             SizedBox(width: 10),
                             Text(
-                              "20 secondi",
+                              "15 secondi",
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
@@ -228,7 +228,7 @@ class _HomepageState extends State<Homepage> {
                             child: Icon(
                               Icons.play_circle_fill,
                               color: Colors.white,
-                              size: 60,
+                              size: 50,
                             ),
                           ),
                         ),

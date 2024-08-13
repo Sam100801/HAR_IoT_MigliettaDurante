@@ -210,6 +210,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Benvenuto!'),
+                                    duration: Duration(seconds: 1),
                                   ),
                                 );
                               }).catchError((error) {
