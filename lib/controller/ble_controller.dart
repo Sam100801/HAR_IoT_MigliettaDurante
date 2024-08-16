@@ -20,14 +20,14 @@ class BleController extends GetxController {
         bluetoothConnectStatus.isGranted &&
         locationStatus.isGranted) {
       // Avvia la scansione dei dispositivi BLE
-      ble.startScan(timeout: Duration(seconds: 15));
+      ble.startScan(timeout: Duration(seconds: 60));
 
       ble.scanResults.listen((results) {
         // Gestisci i risultati della scansione
         print('Found ${results.length} devices');
       });
 
-      await Future.delayed(Duration(seconds: 15));
+      await Future.delayed(Duration(seconds: 60));
       ble.stopScan();
     } else {
       print('Permessi necessari non concessi');
@@ -36,7 +36,7 @@ class BleController extends GetxController {
 
   Future<void> connectToDevice(BluetoothDevice device, Function() onConnected) async {
     try {
-      await device.connect(timeout: Duration(seconds: 15));
+      await device.connect(timeout: Duration(seconds: 36000));
       connectedDevice.value = device;
 
       // Monitora lo stato di connessione del dispositivo
