@@ -11,6 +11,12 @@ class BleController extends GetxController {
   // Informazioni ricevute dal dispositivo
   var deviceInfo = RxString('');
 
+  // Lista di caratteristiche
+  var characteristics = <BluetoothCharacteristic>[].obs;
+
+  // Mappa per le notifiche in tempo reale
+  var notifications = <Guid, List<int>>{}.obs;
+
   Future<void> scanDevices() async {
     final bluetoothScanStatus = await Permission.bluetoothScan.request();
     final bluetoothConnectStatus = await Permission.bluetoothConnect.request();
@@ -49,6 +55,8 @@ class BleController extends GetxController {
           print("Device Disconnected");
           connectedDevice.value = null;
           deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
+          characteristics.clear(); // Resetta le caratteristiche
+          notifications.clear(); // Resetta le notifiche
         }
       });
     } catch (e) {
@@ -60,15 +68,20 @@ class BleController extends GetxController {
     List<BluetoothService> services = await device.discoverServices();
     for (BluetoothService service in services) {
       for (BluetoothCharacteristic characteristic in service.characteristics) {
+        characteristics.add(characteristic);
+
         // Legge i valori delle caratteristiche se possibile
         if (characteristic.properties.read) {
           var value = await characteristic.read();
           deviceInfo.value += 'Characteristic ${characteristic.uuid}: $value\n';
         }
+
         // Monitora le notifiche se la caratteristica supporta il notify
         if (characteristic.properties.notify) {
           await characteristic.setNotifyValue(true);
           characteristic.value.listen((value) {
+            // Aggiorna la mappa delle notifiche in tempo reale
+            notifications[characteristic.uuid] = value;
             deviceInfo.value += 'Notification from ${characteristic.uuid}: $value\n';
           });
         }
@@ -83,6 +96,8 @@ class BleController extends GetxController {
       await device.disconnect();
       connectedDevice.value = null;
       deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
+      characteristics.clear(); // Resetta le caratteristiche
+      notifications.clear(); // Resetta le notifiche
       onDisconnected(); // Chiama il callback quando disconnesso
     }
   }

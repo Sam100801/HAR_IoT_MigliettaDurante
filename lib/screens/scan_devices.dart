@@ -46,17 +46,26 @@ class _ScanDevicesState extends State<ScanDevices> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
                     } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      // Filtra i dispositivi sconosciuti
+                      final filteredResults = snapshot.data!
+                          .where((result) => result.device.name.isNotEmpty)
+                          .toList();
+
+                      if (filteredResults.isEmpty) {
+                        return const Expanded(
+                          child: Center(child: Text('Nessun dispositivo conosciuto trovato')),
+                        );
+                      }
+
                       return Expanded(
                         child: ListView.builder(
-                          itemCount: snapshot.data!.length,
+                          itemCount: filteredResults.length,
                           itemBuilder: (context, index) {
-                            final data = snapshot.data![index];
+                            final data = filteredResults[index];
                             return Card(
                               elevation: 2,
                               child: ListTile(
-                                title: Text(data.device.name.isNotEmpty
-                                    ? data.device.name
-                                    : "Dispositivo sconosciuto"),
+                                title: Text(data.device.name),
                                 subtitle: Text(data.device.id.id),
                                 trailing: Text('RSSI: ${data.rssi}'),
                                 onTap: () async {
@@ -92,6 +101,34 @@ class _ScanDevicesState extends State<ScanDevices> {
                   },
                   child: const Text('Scansiona'),
                 ),
+                const SizedBox(height: 20),
+
+                // Sezione per visualizzare in tempo reale le caratteristiche
+                Obx(() {
+                  if (controller.characteristics.isEmpty) {
+                    return const Text('Nessuna caratteristica trovata');
+                  } else {
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: controller.characteristics.length,
+                        itemBuilder: (context, index) {
+                          final characteristic = controller.characteristics[index];
+                          return Card(
+                            elevation: 2,
+                            child: ListTile(
+                              title: Text('Caratteristica: ${characteristic.uuid}'),
+                              subtitle: Obx(() {
+                                // Visualizza i dati delle notifiche in tempo reale
+                                final value = controller.notifications[characteristic.uuid];
+                                return Text('Valore: ${value != null ? value.toString() : 'N/A'}');
+                              }),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                }),
               ],
             ),
           );
