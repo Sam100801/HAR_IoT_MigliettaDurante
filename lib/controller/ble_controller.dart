@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,6 +17,9 @@ class BleController extends GetxController {
 
   // Mappa per le notifiche in tempo reale
   var notifications = <Guid, List<int>>{}.obs;
+
+  // Timer per aggiornamenti regolari (se necessario)
+  Timer? _updateTimer;
 
   Future<void> scanDevices() async {
     final bluetoothScanStatus = await Permission.bluetoothScan.request();
@@ -51,12 +55,16 @@ class BleController extends GetxController {
           print("Device connected: ${device.name}");
           onConnected(); // Chiama il callback quando connesso
           _discoverServices(device);
+
+          // Avvia un timer per aggiornare i dati delle notifiche ogni secondo
+          _startNotificationUpdate();
         } else if (state == BluetoothDeviceState.disconnected) {
           print("Device Disconnected");
           connectedDevice.value = null;
           deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
           characteristics.clear(); // Resetta le caratteristiche
           notifications.clear(); // Resetta le notifiche
+          _stopNotificationUpdate(); // Ferma il timer quando disconnesso
         }
       });
     } catch (e) {
@@ -89,6 +97,22 @@ class BleController extends GetxController {
     }
   }
 
+  // Metodo per aggiornare le notifiche ogni secondo
+  void _startNotificationUpdate() {
+    _updateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      // Aggiornamento delle notifiche ogni secondo
+      notifications.forEach((uuid, value) {
+        print('Aggiornamento notifiche per $uuid: $value');
+        // Puoi aggiungere altre logiche di aggiornamento qui se necessario
+      });
+    });
+  }
+
+  // Metodo per fermare l'aggiornamento delle notifiche
+  void _stopNotificationUpdate() {
+    _updateTimer?.cancel();
+  }
+
   // Metodo per disconnettere il dispositivo
   Future<void> disconnectFromDevice(Function() onDisconnected) async {
     final device = connectedDevice.value;
@@ -98,6 +122,7 @@ class BleController extends GetxController {
       deviceInfo.value = ''; // Resetta le informazioni quando disconnesso
       characteristics.clear(); // Resetta le caratteristiche
       notifications.clear(); // Resetta le notifiche
+      _stopNotificationUpdate(); // Ferma il timer
       onDisconnected(); // Chiama il callback quando disconnesso
     }
   }
